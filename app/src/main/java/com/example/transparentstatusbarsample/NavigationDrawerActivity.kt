@@ -1,5 +1,6 @@
 package com.example.transparentstatusbarsample
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -9,18 +10,23 @@ import android.view.MenuItem
 import android.view.View
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import kotlinx.android.synthetic.main.activity_nav_coordinator.*
+import kotlinx.android.synthetic.main.activity_navigation_drawer.*
 import kotlinx.android.synthetic.main.app_bar_nav.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 
-class NavCoordinatorActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class NavigationDrawerActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var mToggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_nav_coordinator)
+        setContentView(R.layout.activity_navigation_drawer)
+
         setSupportActionBar(toolbar)
+
+//        Utils.makeStatusBarNoLimit(this)
+//        Utils.changeColorLightStatusBar(this)
+//        Utils.changeColorBackgroundStatusBar(this, R.color.colorStatusBarCustom)
 
         mToggle = ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -31,6 +37,10 @@ class NavCoordinatorActivity : AppCompatActivity(), NavigationView.OnNavigationI
         navigationView.setNavigationItemSelectedListener(this)
 
         updateHeader(navigationView.getHeaderView(0))
+
+        btnCoordinatorLayout.setOnClickListener {
+            startActivity(Intent(this, CoordinatorLayoutActivity::class.java))
+        }
     }
 
     override fun onBackPressed() {
@@ -63,4 +73,5 @@ class NavCoordinatorActivity : AppCompatActivity(), NavigationView.OnNavigationI
         rootView.nav_header_email.text = "thaik59uet@gmail.com"
         rootView.nav_header_name.text = "Thaihn2"
     }
+
 }

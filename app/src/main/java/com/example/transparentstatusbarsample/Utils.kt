@@ -1,6 +1,40 @@
 package com.example.transparentstatusbarsample
 
-object Utils{
+import android.app.Activity
+import android.graphics.Color
+import android.os.Build
+import android.view.View
+import android.view.WindowManager
 
-    val URL_IMAGE_DEFAULT = "https://image.winudf.com/v2/image/Y29tLnVraW5nLm9uZXBpZWNld2FsbHBhcGVyX3NjcmVlbl8xXzE1MjQyMTY4NjZfMDU4/screen-1.jpg?h=800&fakeurl=1"
+object Utils {
+
+    const val URL_IMAGE_DEFAULT = "https://image.winudf.com/v2/image/Y29tLnVraW5nLm9uZXBpZWNld2FsbHBhcGVyX3NjcmVlbl8xXzE1MjQyMTY4NjZfMDU4/screen-1.jpg?h=800&fakeurl=1"
+
+    const val TEXT_CONTENT_DEFAULT = "I have been experimenting with status bar for about 2 days. As I go deep i got to know new things about status bar and how to achieve the transparent status bar.\n" +
+            "\n" +
+            "This article is all about what i learned in that 2 days and also to help you so that you don’t have to research all like i did. If you already know much about status bar please put that in comment section i love to know that.\n" +
+            "\n" +
+            "There are two ways to achieve the transparent status bar. As both example contains android:fitsSystemWindows=”true” and it should be applied to root container(parent layout).\n" +
+            "\n" +
+            "Example First\n" +
+            "\n" +
+            "In this example we are using DrawerLayout and Coordinatorlayout and Navigation View as its child views.\n" +
+            "\n" +
+            "This is what we want to achieve:"
+
+    fun changeColorLightStatusBar(activity: Activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+    }
+
+    fun makeStatusBarNoLimit(activity: Activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            activity.window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+        }
+    }
+
+    fun changeColorBackgroundStatusBar(activity: Activity, color: Int){
+        activity.window.statusBarColor = Color.YELLOW
+    }
 }
