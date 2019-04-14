@@ -139,3 +139,85 @@ activity.window.statusBarColor = Color.YELLOW
 ```
 
 * Như trên ví dụ, chúng ta phải set đồng thời thuộc tính **android:fitsSystemWindows="true"** cho các container và appbar layout, collapsing toolbar để có thể sử dụng vùng hiển thị của status bar.
+
+## With another version Android
+
+> Xử lý việc transparent status bar sẽ khác nhau đối với từng version của Android. Vì vậy phải xử lý các version cũ khi không có sự cải thiện từ thư viện support ở các API cao hơn.
+
+* Chỉ sử dụng cho API từ 19 trở lên, thêm flag **FLAG_TRANSLUCENT_STATUS** để thực hiện:
+
+```
+protected void setStatusBarTranslucent(boolean makeTranslucent) {
+    if (makeTranslucent) {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    } else {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    }
+}
+```
+
+* Kết quả sẽ như sau, khi thanh status bar transparent thì layout sẽ sử dụng chiều cao của nó làm layout, vì vậy sẽ bị vỡ layout đang thiết kế.
+
+![](https://i.stack.imgur.com/IqgD5.png)
+
+* Để xử lý việc này cách đầu tiên có thể xử lý nhanh nhất là thêm thuộc tính **android:fitsSystemWindows="true"** vào layout container.
+
+* Cách thứ 2 có thể xử lý là lấy ra layout và set padding cho layout để nội dung không bị tràn lên.
+
+```
+protected void setStatusBarTranslucent(boolean makeTranslucent) {
+        View v = findViewById(R.id.bellow_actionbar);
+        if (v != null) {
+            int paddingTop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? MyScreenUtils.getStatusBarHeight(this) : 0;
+            TypedValue tv = new TypedValue();
+            getTheme().resolveAttribute(android.support.v7.appcompat.R.attr.actionBarSize, tv, true);
+            paddingTop += TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+            v.setPadding(0, makeTranslucent ? paddingTop : 0, 0, 0);
+        }
+
+        if (makeTranslucent) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+    }
+```
+
+# Theme and Style
+
+* Muốn tạo một style nào đó cho một view hoặc là activity, chúng ta có thể tự tạo 1 style mới hoàn toàn hoặc là extend các style có sẵn sau đó thay đổi lại một vài thuộc tính có trong đó.
+
+* Một style tự tạo sẽ phải điều chỉnh rất nhiều thông số để có thể được như ý người tạo. ví dụ như:
+
+```
+<style name="CustomTextView">
+    <item name="android:textColor">#00FF00</item>
+    <item name="android:typeface">monospace</item>
+    <item name="android:textSize">30sp</item>
+    <item name="android:background">#ffffff</item>
+</style>
+```
+
+* Nhưng nếu mà sử dụng việc custom style, thông qua thuộc tính **parent** thì sẽ đơn giản hơn rất nhieefuf, chỉ phải điều chỉnh sự cần thiết của một vài thuộc tính.
+
+```
+<style name="ExtendTextView" parent="@android:style/TextAppearance">
+    <item name="android:textSize">10dp</item>
+</style>
+```
+
+* Việc xử lý style không tương thích với android version, có thể giải quyết được bằng cách tạo nhiều thư mục values và thêm các style có chứa thuộc tính theo từng API Android. Ví dụ có một thuộc tính chỉ trong API 23 trở lên mới có, mà minSDK lại là 21, vậy nếu không tạo ra một thư mục values mới sẽ dẫn đến không hoạt động hoặc là chết ứng dụng.
+
+* Những style thông thường nên extend từ thư viện **Android Support Library** để có thể hỗ trợ cho Android 4.0 trở lên. Các thư viện trong Support Library thường có tên giống trong các phiên bản nhưng có thêm **AppCompat** và được bắt đầu bằng **@android/**.
+
+* **Theme** là sử dụng các style để quy định chung cho các activity hoặc là toàn bộ ứng dụng. Để áp dụng cho toàn bộ ứng dụng, thay theme cho thẻ **application** còn nếu muốn áp dụng cho activity thì thêm vào từng thẻ tương ứng. 
+
+```
+<application
+        ...
+        android:theme="@style/AppTheme">
+        
+<activity
+    ...
+    android:theme="@style/AppTheme.NoActionBar" />
+```
