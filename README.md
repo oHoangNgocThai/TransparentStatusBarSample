@@ -144,6 +144,8 @@ activity.window.statusBarColor = Color.YELLOW
 
 > Xử lý việc transparent status bar sẽ khác nhau đối với từng version của Android. Vì vậy phải xử lý các version cũ khi không có sự cải thiện từ thư viện support ở các API cao hơn.
 
+### Từ Android KITKAT (API 19) trở lên
+
 * Chỉ sử dụng cho API từ 19 trở lên, thêm flag **FLAG_TRANSLUCENT_STATUS** để thực hiện:
 
 ```
@@ -182,6 +184,52 @@ protected void setStatusBarTranslucent(boolean makeTranslucent) {
         }
     }
 ```
+
+### Dưới Android KITKAT
+
+* Theo như phía chính thức của Android thì việc này là không thể đối với các phiên bản android dưới KITKAT
+
+* Nhưng một số hãng điện thoại như Samsung hay Sony đã thêm tùy chọn này trong phần mềm của họ. Có một triển khai riêng của class View với các flag **SYSTEM_UI_**.
+
+* Để kiểm tra xem có tồn tại các cờ đó không, hãy xem ví dụ dưới đây:
+
+```
+fun resolveTransparentStatusBarFlag(activity: Activity): Int {
+    activity.packageManager?.systemSharedLibraryNames?.let { libs ->
+        var reflect: String? = null
+        libs.forEach { lib ->
+            if (lib.equals("touchwiz")) {
+                reflect = "SYSTEM_UI_FLAG_TRANSPARENT_BACKGROUND"
+            } else if (lib.startsWith("com.sonyericsson.navigationbar")) {
+                reflect = "SYSTEM_UI_FLAG_TRANSPARENT"
+            }
+        }
+
+        reflect?.let {
+            try {
+                val field = View::class.java.getField(it)
+                if (field.type == Integer.TYPE) {
+                    return field.getInt(null)
+                }
+                return 0
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                return 0
+            }
+        }
+
+        return 0
+    }
+
+    return 0
+}
+```
+
+* Sau đó mới sử dụng flag đã lấy rồi apply vào decorView.
+
+```
+activity.window?.decorView?.systemUiVisibility = resolveTransparentStatusBarFlag(activity)
+``` 
 
 # Theme and Style
 

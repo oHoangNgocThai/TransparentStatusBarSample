@@ -34,7 +34,41 @@ object Utils {
         }
     }
 
-    fun changeColorBackgroundStatusBar(activity: Activity, color: Int){
+    fun changeColorBackgroundStatusBar(activity: Activity, color: Int) {
         activity.window.statusBarColor = Color.YELLOW
+    }
+
+    fun resolveTransparentStatusBarFlag(activity: Activity): Int {
+        activity.packageManager?.systemSharedLibraryNames?.let { libs ->
+            var reflect: String? = null
+            libs.forEach { lib ->
+                if (lib.equals("touchwiz")) {
+                    reflect = "SYSTEM_UI_FLAG_TRANSPARENT_BACKGROUND"
+                } else if (lib.startsWith("com.sonyericsson.navigationbar")) {
+                    reflect = "SYSTEM_UI_FLAG_TRANSPARENT"
+                }
+            }
+
+            reflect?.let {
+                try {
+                    val field = View::class.java.getField(it)
+                    if (field.type == Integer.TYPE) {
+                        return field.getInt(null)
+                    }
+                    return 0
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    return 0
+                }
+            }
+
+            return 0
+        }
+
+        return 0
+    }
+
+    fun applyTransparentStatusBarAndroidOld(activity: Activity) {
+        activity.window?.decorView?.systemUiVisibility = resolveTransparentStatusBarFlag(activity)
     }
 }
